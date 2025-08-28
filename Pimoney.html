@@ -1,0 +1,435 @@
+import React, { useState } from 'react';
+import { Camera, QrCode, Plus, Send, CreditCard, ArrowUpDown, Users, Bell, Settings, ArrowUp, ArrowDown, Smartphone, Globe, Home } from 'lucide-react';
+
+const PiWallet = () => {
+  const [activeTab, setActiveTab] = useState('home');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loginMethod, setLoginMethod] = useState('phone');
+  const [showSignup, setShowSignup] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [showVerification, setShowVerification] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState('fr');
+  
+  const [balance] = useState(1245);
+  const [selectedCountry, setSelectedCountry] = useState('CI');
+  const [notifications] = useState(3);
+
+  // Système de langues complet
+  const languages = {
+    // Langues principales
+    'fr': { name: 'Français', flag: '🇫🇷', native: 'Français' },
+    'en': { name: 'English', flag: '🇬🇧', native: 'English' },
+    'es': { name: 'Español', flag: '🇪🇸', native: 'Español' },
+    'pt': { name: 'Português', flag: '🇵🇹', native: 'Português' },
+    'de': { name: 'Deutsch', flag: '🇩🇪', native: 'Deutsch' },
+    'it': { name: 'Italiano', flag: '🇮🇹', native: 'Italiano' },
+    'ru': { name: 'Русский', flag: '🇷🇺', native: 'Русский' },
+    'ar': { name: 'العربية', flag: '🇸🇦', native: 'العربية' },
+    'zh': { name: '中文', flag: '🇨🇳', native: '中文' },
+    'ja': { name: '日本語', flag: '🇯🇵', native: '日本語' },
+    'ko': { name: '한국어', flag: '🇰🇷', native: '한국어' },
+    'hi': { name: 'हिन्दी', flag: '🇮🇳', native: 'हिन्दी' },
+    
+    // Langues africaines
+    'sw': { name: 'Kiswahili', flag: '🇹🇿', native: 'Kiswahili' },
+    'am': { name: 'አማርኛ', flag: '🇪🇹', native: 'አማርኛ' },
+    'ha': { name: 'Hausa', flag: '🇳🇬', native: 'Hausa' },
+    'yo': { name: 'Yorùbá', flag: '🇳🇬', native: 'Yorùbá' },
+    'ig': { name: 'Igbo', flag: '🇳🇬', native: 'Igbo' },
+    'wo': { name: 'Wolof', flag: '🇸🇳', native: 'Wolof' },
+    'dyu': { name: 'Dioula', flag: '🇨🇮', native: 'Jula' },
+    'bm': { name: 'Bamanankan', flag: '🇲🇱', native: 'Bamanankan' },
+    'ff': { name: 'Fulfulde', flag: '🇸🇳', native: 'Fulfulde' },
+    'zu': { name: 'isiZulu', flag: '🇿🇦', native: 'isiZulu' },
+    'xh': { name: 'isiXhosa', flag: '🇿🇦', native: 'isiXhosa' },
+    'af': { name: 'Afrikaans', flag: '🇿🇦', native: 'Afrikaans' },
+    'so': { name: 'Soomaali', flag: '🇸🇴', native: 'Soomaali' },
+    'om': { name: 'Afaan Oromoo', flag: '🇪🇹', native: 'Afaan Oromoo' },
+    'rw': { name: 'Ikinyarwanda', flag: '🇷🇼', native: 'Ikinyarwanda' },
+    'lg': { name: 'Luganda', flag: '🇺🇬', native: 'Luganda' },
+    'mg': { name: 'Malagasy', flag: '🇲🇬', native: 'Malagasy' },
+    
+    // Langues européennes
+    'pl': { name: 'Polski', flag: '🇵🇱', native: 'Polski' },
+    'nl': { name: 'Nederlands', flag: '🇳🇱', native: 'Nederlands' },
+    'sv': { name: 'Svenska', flag: '🇸🇪', native: 'Svenska' },
+    'no': { name: 'Norsk', flag: '🇳🇴', native: 'Norsk' },
+    'da': { name: 'Dansk', flag: '🇩🇰', native: 'Dansk' },
+    'fi': { name: 'Suomi', flag: '🇫🇮', native: 'Suomi' },
+    'el': { name: 'Ελληνικά', flag: '🇬🇷', native: 'Ελληνικά' },
+    'tr': { name: 'Türkçe', flag: '🇹🇷', native: 'Türkçe' },
+    'cs': { name: 'Čeština', flag: '🇨🇿', native: 'Čeština' },
+    'sk': { name: 'Slovenčina', flag: '🇸🇰', native: 'Slovenčina' },
+    'hu': { name: 'Magyar', flag: '🇭🇺', native: 'Magyar' },
+    'ro': { name: 'Română', flag: '🇷🇴', native: 'Română' },
+    'bg': { name: 'Български', flag: '🇧🇬', native: 'Български' },
+    'hr': { name: 'Hrvatski', flag: '🇭🇷', native: 'Hrvatski' },
+    'uk': { name: 'Українська', flag: '🇺🇦', native: 'Українська' },
+    
+    // Langues asiatiques
+    'th': { name: 'ไทย', flag: '🇹🇭', native: 'ไทย' },
+    'vi': { name: 'Tiếng Việt', flag: '🇻🇳', native: 'Tiếng Việt' },
+    'id': { name: 'Bahasa Indonesia', flag: '🇮🇩', native: 'Bahasa Indonesia' },
+    'ms': { name: 'Bahasa Melayu', flag: '🇲🇾', native: 'Bahasa Melayu' },
+    'tl': { name: 'Tagalog', flag: '🇵🇭', native: 'Tagalog' },
+    'my': { name: 'မြန်မာ', flag: '🇲🇲', native: 'မြန်မာ' },
+    'km': { name: 'ខ្មែរ', flag: '🇰🇭', native: 'ខ្មែរ' },
+    'lo': { name: 'ລາວ', flag: '🇱🇦', native: 'ລາວ' },
+    'bn': { name: 'বাংলা', flag: '🇧🇩', native: 'বাংলা' },
+    'ur': { name: 'اردو', flag: '🇵🇰', native: 'اردو' },
+    'fa': { name: 'فارسی', flag: '🇮🇷', native: 'فارسی' },
+    'he': { name: 'עברית', flag: '🇮🇱', native: 'עברית' },
+    
+    // Langues des Amériques
+    'qu': { name: 'Kichwa', flag: '🇵🇪', native: 'Kichwa' },
+    'gn': { name: 'Avañe\'ẽ', flag: '🇵🇾', native: 'Avañe\'ẽ' },
+    'ht': { name: 'Kreyòl ayisyen', flag: '🇭🇹', native: 'Kreyòl ayisyen' },
+    
+    // Langues océaniennes
+    'mi': { name: 'Te Reo Māori', flag: '🇳🇿', native: 'Te Reo Māori' },
+    'sm': { name: 'Gagana Samoa', flag: '🇼🇸', native: 'Gagana Samoa' },
+    'to': { name: 'Lea fakatonga', flag: '🇹🇴', native: 'Lea fakatonga' },
+    'fj': { name: 'Na Vosa Vakaviti', flag: '🇫🇯', native: 'Na Vosa Vakaviti' },
+    
+    // Langues spéciales
+    'eo': { name: 'Esperanto', flag: '🌍', native: 'Esperanto' },
+    'la': { name: 'Latina', flag: '🇻🇦', native: 'Latina' },
+  };
+
+  // Traductions
+  const translations = {
+    fr: {
+      appName: 'Pi Money',
+      welcome: 'Bienvenue sur Pi Money',
+      tagline: 'Votre portefeuille Pi universel',
+      login: 'Se connecter',
+      signup: 'Créer un compte',
+      phone: 'Téléphone',
+      email: 'Email',
+      phoneNumber: 'Numéro de téléphone',
+      emailAddress: 'Adresse email',
+      password: 'Mot de passe',
+      continueWith: 'Ou continuez avec',
+      mobileMoneyTitle: 'Mobile Money',
+      alreadyAccount: 'Déjà un compte ?',
+      noAccount: 'Pas encore de compte ?',
+      forgotPassword: 'Mot de passe oublié ?',
+      verification: 'Vérification',
+      verificationSent: 'Code envoyé au',
+      verificationCode: 'Code de vérification',
+      verifyCode: 'Vérifier le code',
+      resendCode: 'Renvoyer le code',
+      changeNumber: 'Changer de numéro',
+      receiveCode: 'Recevoir le code SMS',
+      createAccount: 'Créer le compte',
+      balance: 'Mon solde',
+      todayGain: 'aujourd\'hui',
+      buy: 'Acheter',
+      send: 'Envoyer',
+      exchange: 'Échanger',
+      share: 'Partager',
+      recentTransactions: 'Transactions récentes',
+      from: 'De',
+      to: 'À',
+      home: 'Accueil',
+      scan: 'Scanner',
+      myQR: 'Mon QR',
+      create: 'Créer',
+      settings: 'Paramètres',
+      profile: 'Profil',
+      security: 'Sécurité',
+      preferences: 'Préférences',
+      language: 'Langue',
+      helpSupport: 'Aide & Support',
+      logout: 'Se déconnecter',
+      scanQR: 'Scanner un QR Code',
+      placeQR: 'Placez le QR code dans le cadre',
+      myQRCode: 'Mon QR Code',
+      shareQR: 'Partagez ce QR pour recevoir des Pi',
+      createQRCode: 'Créer un QR Code',
+      requestPayment: 'Demander argent',
+      internationalTransfer: 'Transfert international',
+      shareCosts: 'Partager frais',
+      piGift: 'Cadeau Pi',
+      country: 'Pays',
+      currency: 'Devise',
+      notifications: 'Notifications',
+      darkTheme: 'Thème sombre',
+      helpCenter: 'Centre d\'aide',
+      contactSupport: 'Contacter le support',
+      aboutApp: 'À propos de Pi Money',
+      changePassword: 'Changer mot de passe',
+      fingerprint: 'Empreinte digitale',
+      enabled: 'Activée',
+      disabled: 'Désactivée',
+      editProfile: 'Modifier le profil'
+    },
+    en: {
+      appName: 'Pi Money',
+      welcome: 'Welcome to Pi Money',
+      tagline: 'Your universal Pi wallet',
+      login: 'Sign In',
+      signup: 'Create Account',
+      phone: 'Phone',
+      email: 'Email',
+      phoneNumber: 'Phone Number',
+      emailAddress: 'Email Address',
+      password: 'Password',
+      continueWith: 'Or continue with',
+      mobileMoneyTitle: 'Mobile Money',
+      alreadyAccount: 'Already have an account?',
+      noAccount: 'Don\'t have an account?',
+      forgotPassword: 'Forgot Password?',
+      verification: 'Verification',
+      verificationSent: 'Code sent to',
+      verificationCode: 'Verification Code',
+      verifyCode: 'Verify Code',
+      resendCode: 'Resend Code',
+      changeNumber: 'Change Number',
+      receiveCode: 'Receive SMS Code',
+      createAccount: 'Create Account',
+      balance: 'My Balance',
+      todayGain: 'today',
+      buy: 'Buy',
+      send: 'Send',
+      exchange: 'Exchange',
+      share: 'Share',
+      recentTransactions: 'Recent Transactions',
+      from: 'From',
+      to: 'To',
+      home: 'Home',
+      scan: 'Scan',
+      myQR: 'My QR',
+      create: 'Create',
+      settings: 'Settings',
+      profile: 'Profile',
+      security: 'Security',
+      preferences: 'Preferences',
+      language: 'Language',
+      helpSupport: 'Help & Support',
+      logout: 'Log Out',
+      scanQR: 'Scan QR Code',
+      placeQR: 'Place QR code in frame',
+      myQRCode: 'My QR Code',
+      shareQR: 'Share this QR to receive Pi',
+      createQRCode: 'Create QR Code',
+      requestPayment: 'Request Payment',
+      internationalTransfer: 'International Transfer',
+      shareCosts: 'Share Costs',
+      piGift: 'Pi Gift',
+      country: 'Country',
+      currency: 'Currency',
+      notifications: 'Notifications',
+      darkTheme: 'Dark Theme',
+      helpCenter: 'Help Center',
+      contactSupport: 'Contact Support',
+      aboutApp: 'About Pi Money',
+      changePassword: 'Change Password',
+      fingerprint: 'Fingerprint',
+      enabled: 'Enabled',
+      disabled: 'Disabled',
+      editProfile: 'Edit Profile'
+    }
+  };
+
+  const t = translations[selectedLanguage] || translations.fr;
+
+  // Pays avec devises
+  const countries = {
+    'CI': { name: 'Côte d\'Ivoire', currency: 'XOF', flag: '🇨🇮' },
+    'SN': { name: 'Sénégal', currency: 'XOF', flag: '🇸🇳' },
+    'ML': { name: 'Mali', currency: 'XOF', flag: '🇲🇱' },
+    'BF': { name: 'Burkina Faso', currency: 'XOF', flag: '🇧🇫' },
+    'NE': { name: 'Niger', currency: 'XOF', flag: '🇳🇪' },
+    'TG': { name: 'Togo', currency: 'XOF', flag: '🇹🇬' },
+    'BJ': { name: 'Bénin', currency: 'XOF', flag: '🇧🇯' },
+    'GW': { name: 'Guinée-Bissau', currency: 'XOF', flag: '🇬🇼' },
+    'CM': { name: 'Cameroun', currency: 'XAF', flag: '🇨🇲' },
+    'GA': { name: 'Gabon', currency: 'XAF', flag: '🇬🇦' },
+    'CG': { name: 'Congo', currency: 'XAF', flag: '🇨🇬' },
+    'CF': { name: 'Centrafrique', currency: 'XAF', flag: '🇨🇫' },
+    'TD': { name: 'Tchad', currency: 'XAF', flag: '🇹🇩' },
+    'GQ': { name: 'Guinée équatoriale', currency: 'XAF', flag: '🇬🇶' },
+    'NG': { name: 'Nigeria', currency: 'NGN', flag: '🇳🇬' },
+    'GH': { name: 'Ghana', currency: 'GHS', flag: '🇬🇭' },
+    'KE': { name: 'Kenya', currency: 'KES', flag: '🇰🇪' },
+    'TZ': { name: 'Tanzanie', currency: 'TZS', flag: '🇹🇿' },
+    'UG': { name: 'Ouganda', currency: 'UGX', flag: '🇺🇬' },
+    'RW': { name: 'Rwanda', currency: 'RWF', flag: '🇷🇼' },
+    'ET': { name: 'Éthiopie', currency: 'ETB', flag: '🇪🇹' },
+    'EG': { name: 'Égypte', currency: 'EGP', flag: '🇪🇬' },
+    'ZA': { name: 'Afrique du Sud', currency: 'ZAR', flag: '🇿🇦' },
+    'MA': { name: 'Maroc', currency: 'MAD', flag: '🇲🇦' },
+    'DZ': { name: 'Algérie', currency: 'DZD', flag: '🇩🇿' },
+    'TN': { name: 'Tunisie', currency: 'TND', flag: '🇹🇳' },
+    'FR': { name: 'France', currency: 'EUR', flag: '🇫🇷' },
+    'DE': { name: 'Allemagne', currency: 'EUR', flag: '🇩🇪' },
+    'IT': { name: 'Italie', currency: 'EUR', flag: '🇮🇹' },
+    'ES': { name: 'Espagne', currency: 'EUR', flag: '🇪🇸' },
+    'PT': { name: 'Portugal', currency: 'EUR', flag: '🇵🇹' },
+    'GB': { name: 'Royaume-Uni', currency: 'GBP', flag: '🇬🇧' },
+    'US': { name: 'États-Unis', currency: 'USD', flag: '🇺🇸' },
+    'CA': { name: 'Canada', currency: 'CAD', flag: '🇨🇦' },
+    'BR': { name: 'Brésil', currency: 'BRL', flag: '🇧🇷' },
+    'MX': { name: 'Mexique', currency: 'MXN', flag: '🇲🇽' },
+    'AR': { name: 'Argentine', currency: 'ARS', flag: '🇦🇷' },
+    'CN': { name: 'Chine', currency: 'CNY', flag: '🇨🇳' },
+    'JP': { name: 'Japon', currency: 'JPY', flag: '🇯🇵' },
+    'KR': { name: 'Corée du Sud', currency: 'KRW', flag: '🇰🇷' },
+    'IN': { name: 'Inde', currency: 'INR', flag: '🇮🇳' },
+    'ID': { name: 'Indonésie', currency: 'IDR', flag: '🇮🇩' },
+    'TH': { name: 'Thaïlande', currency: 'THB', flag: '🇹🇭' },
+    'VN': { name: 'Vietnam', currency: 'VND', flag: '🇻🇳' },
+    'MY': { name: 'Malaisie', currency: 'MYR', flag: '🇲🇾' },
+    'PH': { name: 'Philippines', currency: 'PHP', flag: '🇵🇭' },
+    'SG': { name: 'Singapour', currency: 'SGD', flag: '🇸🇬' },
+    'AU': { name: 'Australie', currency: 'AUD', flag: '🇦🇺' },
+    'NZ': { name: 'Nouvelle-Zélande', currency: 'NZD', flag: '🇳🇿' },
+    'RU': { name: 'Russie', currency: 'RUB', flag: '🇷🇺' },
+    'TR': { name: 'Turquie', currency: 'TRY', flag: '🇹🇷' },
+    'SA': { name: 'Arabie Saoudite', currency: 'SAR', flag: '🇸🇦' },
+    'AE': { name: 'Émirats arabes unis', currency: 'AED', flag: '🇦🇪' }
+  };
+
+  const currencies = {
+    'XOF': { rate: 300, symbol: 'XOF' },
+    'XAF': { rate: 300, symbol: 'XAF' },
+    'EUR': { rate: 0.5, symbol: '€' },
+    'USD': { rate: 0.5, symbol: '$' },
+    'GBP': { rate: 0.4, symbol: '£' },
+    'CAD': { rate: 0.67, symbol: 'C$' },
+    'NGN': { rate: 240, symbol: '₦' },
+    'GHS': { rate: 6, symbol: '₵' },
+    'KES': { rate: 65, symbol: 'KSh' },
+    'TZS': { rate: 1200, symbol: 'TSh' },
+    'UGX': { rate: 1800, symbol: 'USh' },
+    'RWF': { rate: 620, symbol: 'FRw' },
+    'ETB': { rate: 27, symbol: 'Br' },
+    'EGP': { rate: 15, symbol: '£' },
+    'ZAR': { rate: 9, symbol: 'R' },
+    'MAD': { rate: 5, symbol: 'DH' },
+    'DZD': { rate: 80, symbol: 'DA' },
+    'TND': { rate: 1.5, symbol: 'DT' },
+    'BRL': { rate: 2.6, symbol: 'R$' },
+    'MXN': { rate: 9, symbol: 'MX$' },
+    'ARS': { rate: 175, symbol: '$' },
+    'CNY': { rate: 3.6, symbol: '¥' },
+    'JPY': { rate: 75, symbol: '¥' },
+    'KRW': { rate: 650, symbol: '₩' },
+    'INR': { rate: 42, symbol: '₹' },
+    'IDR': { rate: 7600, symbol: 'Rp' },
+    'THB': { rate: 17.5, symbol: '฿' },
+    'VND': { rate: 12000, symbol: '₫' },
+    'MYR': { rate: 2.3, symbol: 'RM' },
+    'PHP': { rate: 28, symbol: '₱' },
+    'SGD': { rate: 0.68, symbol: 'S$' },
+    'AUD': { rate: 0.75, symbol: 'A$' },
+    'NZD': { rate: 0.8, symbol: 'NZ$' },
+    'RUB': { rate: 45, symbol: '₽' },
+    'TRY': { rate: 8.5, symbol: '₺' },
+    'SAR': { rate: 1.9, symbol: 'SR' },
+    'AED': { rate: 1.8, symbol: 'AED' }
+  };
+
+  const currentCountry = countries[selectedCountry];
+  const currentCurrency = currencies[currentCountry.currency];
+  const convertedBalance = Math.round(balance * currentCurrency.rate);
+
+  const transactions = [
+    { id: 1, type: 'received', from: 'Paul Martin', amount: 50, time: '10:30', flag: '🇫🇷' },
+    { id: 2, type: 'sent', to: 'Marie Dubois', amount: -25, time: '09:15', flag: '🇧🇪' },
+    { id: 3, type: 'bought', from: 'Achat Pi', amount: 100, time: '08:00', flag: '💳' },
+  ];
+
+  const quickActions = [
+    { icon: CreditCard, label: t.buy, color: 'bg-green-600' },
+    { icon: Send, label: t.send, color: 'bg-blue-600' },
+    { icon: ArrowUpDown, label: t.exchange, color: 'bg-purple-600' },
+    { icon: Users, label: t.share, color: 'bg-orange-600' },
+  ];
+
+  const qrTypes = [
+    { icon: Send, label: t.requestPayment, desc: 'Créer une demande de paiement' },
+    { icon: Globe, label: t.internationalTransfer, desc: 'Envoyer vers autre pays' },
+    { icon: Users, label: t.shareCosts, desc: 'Diviser une addition' },
+    { icon: Plus, label: t.piGift, desc: 'Offrir des Pi en cadeau' },
+  ];
+
+  const handleLogin = () => {
+    if (loginMethod === 'phone' && phoneNumber) {
+      setShowVerification(true);
+    } else if (loginMethod === 'email' && email && password) {
+      setIsLoggedIn(true);
+    }
+  };
+
+  const handleVerification = () => {
+    if (verificationCode === '123456') {
+      setIsLoggedIn(true);
+    } else {
+      alert('Code incorrect. Utilisez 123456 pour la démo');
+    }
+  };
+
+  const handleSocialLogin = (provider) => {
+    setTimeout(() => {
+      setIsLoggedIn(true);
+    }, 1000);
+  };
+
+  const renderLoginScreen = () => (
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 flex items-center justify-center p-6">
+      <div className="w-full max-w-md">
+        {/* Logo et titre */}
+        <div className="text-center mb-8 animate-fade-in">
+          <div className="bg-blue-600 w-20 h-20 rounded-2xl mx-auto mb-4 flex items-center justify-center animate-bounce-slow">
+            <span className="text-3xl font-bold text-white">₿</span>
+          </div>
+          <h1 className="text-3xl font-bold text-white mb-2">{t.appName}</h1>
+          <p className="text-blue-200">{t.tagline}</p>
+        </div>
+
+        {!showVerification ? (
+          <div className="bg-gray-800 rounded-2xl p-6 shadow-2xl animate-slide-up">
+            <h2 className="text-xl font-semibold text-white mb-6 text-center">
+              {showSignup ? t.signup : t.login}
+            </h2>
+
+            {/* Sélecteur de méthode */}
+            <div className="flex space-x-2 mb-6 bg-gray-700 rounded-lg p-1">
+              <button
+                onClick={() => setLoginMethod('phone')}
+                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
+                  loginMethod === 'phone'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+              >
+                📱 {t.phone}
+              </button>
+              <button
+                onClick={() => setLoginMethod('email')}
+                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
+                  loginMethod === 'email'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-gray-300 hover:text-white'
+                }`}
+              >
+                📧 {t.email}
+              </button>
+            </div>
+
+            {/* Formulaire téléphone */}
+            {loginMethod === 'phone' && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    {t.phoneNumber}
+                  </label>
+                  <div className="flex">
+                    <select className="bg-gray-700 text-white rounded-l-lg px-3 py-3 border-r border-gray-600 text-sm">
+                      <option value="+225">🇨🇮 +225</option>
+                      <option value="+33">🇫🇷 +33
